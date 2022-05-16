@@ -11,7 +11,7 @@ Requirements:
 
 Results:
 - Rest API with routes for getting:
-- - The difference between two specific states
+- - The difference between two specific states, filtered by year if chosen
 - - The state with the biggest/smallest population
 - - 1 other interesting comparison/information from the dataset 
 - Route for accessing logs of queries made to above route
