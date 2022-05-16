@@ -1,6 +1,6 @@
 # backend-coding-challenge
 
-Write a REST Api where you can query for the Styr & Ställ-station with the currently most free spaces using this open data resource: https://data.goteborg.se/SelfServiceBicycleService/v2.0/help.
+Write a REST Api where you can query for for the difference between difference states population using: https://datausa.io/api/data?drilldowns=State&measures=Population&year=latest.
 
 Also save all queries made with datetime in a database and provide a way to access this information.
 
@@ -10,6 +10,10 @@ Requirements:
 
 
 Results:
-- Rest API with routes for getting status of Styr&Ställ-station free slots.
-- Route for accessing logs of queries made to above route.
-- Authentication route for accessing the above mentioned logging route.
+- Rest API with routes for getting:
+- - The difference between two specific states
+- - The state with the biggest/smallest population
+- - 1 other interesting comparison/information from the dataset 
+- Route for accessing logs of queries made to above route
+
+
