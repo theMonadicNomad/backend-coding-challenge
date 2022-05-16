@@ -17,3 +17,7 @@ Results:
 - Route for accessing logs of queries made to above route
 
 
+Challenge instructions:
+- Fork this repo
+- Complete the challenge
+- Email jobb@spinit.se / jens.hendar@spinit.se
