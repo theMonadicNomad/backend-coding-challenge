@@ -10,11 +10,11 @@ Requirements:
 
 
 Results:
-- Rest API with routes for getting:
-- - The difference between two specific states, filtered by year if chosen
+- Rest API with that can return:
+- - The difference in population between two specific states, filtered by year if chosen
 - - The state with the biggest/smallest population
 - - 1 other interesting comparison/information from the dataset 
-- Route for accessing logs of queries made to above route
+- Some way of accessing logs of queries made
 
 
 Challenge instructions:
