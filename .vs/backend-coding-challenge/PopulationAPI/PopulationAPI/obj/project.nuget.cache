@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "v97aWGyu+QlbcgwH3ttvsvfEwr+TBINVpoWnJxWJQoRp3VlnT/9koRAcxDK5UvXhri6uXg5/QIvTfF4ZRMKfhw==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\es18954\\Downloads\\backend-coding-challenge\\.vs\\backend-coding-challenge\\PopulationAPI\\PopulationAPI\\PopulationAPI.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\es18954\\.nuget\\packages\\microsoft.visualstudio.azure.containers.tools.targets\\1.17.0\\microsoft.visualstudio.azure.containers.tools.targets.1.17.0.nupkg.sha512",
+    "C:\\Users\\es18954\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512"
+  ],
+  "logs": []
+}
