@@ -7,6 +7,10 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Microsoft.VisualBasic;
 using PopulationAPI.Data;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+//sing System.Web.Http;
+//using System.Web.Http;
 //using System.Web.Http;
 //using System.Web.Http;
 
@@ -36,24 +40,36 @@ namespace PopulationAPI.Controllers
             HttpClient client = new HttpClient();
             var response =  client.GetAsync(apiUrl).Result; 
             var json = response.Content.ReadAsStringAsync().Result;
-            //Console.WriteLine(json);
-            var temp = JObject.Parse(json);
-            JArray array = temp["data"] as JArray;
-            
-            
-            //Console.WriteLine(array);
-            var options = new JsonSerializerOptions
+            var parsed  = JObject.Parse(json);
+//            JArray value = new JArray();
+            //var value ="";
+           if (parsed.TryGetValue("data", out var value ))
             {
-                IncludeFields = true,
-            };
-            List<PopulationDetails> populationDetails = array.ToObject<List<PopulationDetails>>();
+                //JArray array = value as JArray;
+               JArray array = value!=null ? value as JArray : new JArray();
 
-            
+                List<PopulationDetails> populationDetails = array.ToObject<List<PopulationDetails>>();
+                return populationDetails;
 
-            //JsonConvert.DeserializeObject<List<PopulationDetails>>(array);
 
-            return populationDetails;
-          
+            }
+
+/*            if (parsed != null)
+            {
+                JArray? array = parsed["data"] as JArray;
+
+                List<PopulationDetails> populationDetails = array.ToObject<List<PopulationDetails>>();
+
+                /*var options = new JsonSerializerOptions
+                {
+                    IncludeFields = true,
+                }; 
+
+                //JsonConvert.DeserializeObject<List<PopulationDetails>>(array);
+
+                return populationDetails;
+            } */
+            else return Enumerable.Empty<PopulationDetails>();
 
 
         }
@@ -63,19 +79,28 @@ namespace PopulationAPI.Controllers
         public async Task<IActionResult> GetPopulationDifference(String stateA, String stateB)
         {
 
+
+            if (string.IsNullOrEmpty(stateA) || string.IsNullOrEmpty(stateB))
+                throw new Exception("State should not be null");
+            //new System.Web.Http.HttpResponseException(HttpStatusCode.NotFound);
+
             var populationDetails = GetPopulationDetails();
 
-            var item1 = populationDetails.SingleOrDefault(p => p.State == stateA);
-            var item2 = populationDetails.SingleOrDefault(p => p.State == stateB);
+
+
+                var item1 = populationDetails.SingleOrDefault(p => p.State.ToLower() == stateA.ToLower());
+                var item2 = populationDetails.SingleOrDefault(p => p.State.ToLower() == stateB.ToLower());
+            if (item1 == null || item2 == null) return NotFound();// throw new Exception("The given state doesnt found in the database");
+
             Console.WriteLine(item1.Population);
-            Console.WriteLine (item2?.Population);
-            Console.WriteLine(item1.Population-item2.Population);
+                Console.WriteLine(item2.Population);
+                Console.WriteLine(item1.Population - item2.Population);
 
 
-            await _context.Logs.AddAsync(new Model.Log {  DateTime = DateTime.Now, QueryType = "GetPopulationDetails/" + stateA+ "/" + stateB });
-            await _context.SaveChangesAsync();
+                await _context.Logs.AddAsync(new Model.Log { DateTime = DateTime.Now, QueryType = "GetPopulationDetails/" + stateA + "/" + stateB });
+                await _context.SaveChangesAsync();
 
-            return Ok(item1.Population - item2.Population);
+                return Ok(item1.Population - item2.Population);
 
 
         }
@@ -85,19 +110,20 @@ namespace PopulationAPI.Controllers
         public async Task<IActionResult> GetBigSmall()
         {
 
-            var populationDetails = GetPopulationDetails();
+            var sortedPopulationDetails = GetPopulationDetails().OrderByDescending(i =>i.Population);
             Console.WriteLine("From big small");
-            var largestItem = populationDetails.OrderByDescending(i => i.Population).First();
+
+            var largestItem = sortedPopulationDetails.First();
             Console.WriteLine(largestItem.State);
-            var smallestItem = populationDetails.OrderByDescending(i => i.Population).Last();
+            var smallestItem = sortedPopulationDetails.Last();
             Console.WriteLine(smallestItem.State);
 
             await _context.Logs.AddAsync(new Model.Log {  DateTime = DateTime.Now, QueryType = "GetBigSmall" });
             await _context.SaveChangesAsync();
 
-            //return Ok(largestItem.State);
+         
             return Ok(new { largestPopulation = largestItem.State, smallestPopulation = smallestItem.State });    
-           // return Ok(new { big = largestItem.State, small = smallestItem.State });
+         
 
         }
 
