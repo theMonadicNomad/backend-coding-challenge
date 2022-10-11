@@ -10,10 +10,7 @@ using PopulationAPI.Data;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using PopulationAPI.Helper;
-//sing System.Web.Http;
-//using System.Web.Http;
-//using System.Web.Http;
-//using System.Web.Http;
+
 
 namespace PopulationAPI.Controllers
 {
@@ -21,9 +18,6 @@ namespace PopulationAPI.Controllers
     [Route("[controller]")]
     public class PopulationController : ControllerBase
     {
-
-
-
 
         private readonly ILogger<PopulationController> _logger;
         private readonly IConfiguration _configuration;
@@ -38,7 +32,7 @@ namespace PopulationAPI.Controllers
 
         [HttpGet("{stateA}/{stateB}")]
 
-        public async Task<IActionResult> GetPopulationDifference(String stateA, String stateB)
+        public IActionResult GetPopulationDifference(String stateA, String stateB)
         {
             if (string.IsNullOrEmpty(stateA) || string.IsNullOrEmpty(stateB))
                 throw new Exception("State should not be null");
@@ -50,9 +44,7 @@ namespace PopulationAPI.Controllers
             if (state1 == null || state2 == null) return NotFound();// throw new Exception("The given state doesnt found in the database");
 
 
-             LogData("GetPopulationDetails/" + stateA + "/" + stateB );
-/*            await _context.Logs.AddAsync(new Model.Log { DateTime = DateTime.Now, QueryType = "GetPopulationDetails/" + stateA + "/" + stateB });
-            await _context.SaveChangesAsync();*/
+            LogData("GetPopulationDetails/" + stateA + "/" + stateB);
 
             return Ok(Math.Abs(state1.Population - state2.Population));
 
@@ -71,9 +63,6 @@ namespace PopulationAPI.Controllers
             var smallestState = sortedPopulationDetails.Last().State;
 
             LogData("GetLargestandSmallest");
-            /*await _context.Logs.AddAsync(new Model.Log { DateTime = DateTime.Now, QueryType = "GetBigSmall" });
-            await _context.SaveChangesAsync();*/
-
 
             return Ok(new { largestPopulation = largestState, smallestPopulation = smallestState });
 
