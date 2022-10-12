@@ -30,55 +30,71 @@ namespace PopulationAPI.Controllers
             _context = context;
         }
 
-        [HttpGet("{stateA}/{stateB}")]
+        [HttpGet("YearlyDifference/{stateA}/{stateB}/{year=latest}")]
 
-        public IActionResult GetPopulationDifference(String stateA, String stateB)
+        public IActionResult GetPopulationDifference(String stateA, String stateB, string year )
         {
             if (string.IsNullOrEmpty(stateA) || string.IsNullOrEmpty(stateB))
                 throw new Exception("State should not be null");
 
-            var populationDetails = GetPopulationDetails();
+            var populationDetails = GetPopulationDetails(year);
+
+            if (populationDetails.Count() == 0)
+            {
+                return NotFound($"No data found for the year {year}");
+            }
 
             var state1 = populationDetails.Where(s => s.State.ToLower() == stateA.ToLower()).FirstOrDefault();
+            if (state1 == null) return NotFound($"State {stateA} not found");
+
             var state2 = populationDetails.Where(s => s.State.ToLower() == stateB.ToLower()).FirstOrDefault();
-            if (state1 == null || state2 == null) return NotFound();// throw new Exception("The given state doesnt found in the database");
+            if (state2 == null) return NotFound($"State {stateB} not found");
 
 
-            LogData("GetPopulationDetails/" + stateA + "/" + stateB);
+            LogData(Request.Path);
 
-            return Ok(Math.Abs(state1.Population - state2.Population));
+            return Ok( new { difference = Math.Abs(state1.Population - state2.Population) });
 
 
         }
 
-        [HttpGet()]
+        [HttpGet("LargestSmallest/{year=latest}")]
 
-        public IActionResult GetLargestandSmallestPopulation()
+        public IActionResult GetLargestandSmallestPopulation(string year)
         {
 
-            var sortedPopulationDetails = GetPopulationDetails().OrderByDescending(i => i.Population);
-            Console.WriteLine("From big small");
+            var sortedPopulationDetails = GetPopulationDetails(year).OrderByDescending(i => i.Population);
+            if (sortedPopulationDetails.Count() == 0)
+            {
+                return NotFound($"No data found for the year {year}");
+            }
 
-            var largestState = sortedPopulationDetails.First().State;
-            var smallestState = sortedPopulationDetails.Last().State;
+            var largestState = sortedPopulationDetails.First();
+            var smallestState = sortedPopulationDetails.Last();
 
-            LogData("GetLargestandSmallest");
+            LogData(Request.Path);
+           // await _context.Logs.AddAsync(new Model.Log { DateTime = DateTime.Now, QueryType = Request.Path });
+            //await _context.SaveChangesAsync();
 
-            return Ok(new { largestPopulation = largestState, smallestPopulation = smallestState });
+            var response = new { largestPopulation = new { state = largestState.State, population = largestState.Population },
+                smallestPopulation = new { state= smallestState.State, population= smallestState.Population} };
+            return Ok(response);
 
 
         }
 
-        private async void LogData(string queryType)
+        private async Task LogData(string queryType)
         {
             await _context.Logs.AddAsync(new Model.Log { DateTime = DateTime.Now, QueryType = queryType });
             await _context.SaveChangesAsync();
 
         }
 
-        private IEnumerable<PopulationDetails> GetPopulationDetails()
+        private IEnumerable<PopulationDetails> GetPopulationDetails(String year="latest")
         {
-            string populationResponse = HttpHelper.Get(_configuration["Url"].ToString());
+            string url = _configuration["Url"];
+            url = url.Replace("{year}", year);
+            string populationResponse = HttpHelper.Get(url);
             var populationData = ParsePopulationData(JObject.Parse(populationResponse));
             return populationData;
         }
@@ -86,11 +102,16 @@ namespace PopulationAPI.Controllers
         private List<PopulationDetails> ParsePopulationData(JObject populationData)
         {
             List<PopulationDetails> populationDetails = new List<PopulationDetails>();
-            if (populationData != null)
+            if (populationData.TryGetValue("data", out var value))
             {
-                JArray? array = populationData["data"] as JArray;
-                populationDetails = array.ToObject<List<PopulationDetails>>();
+                var valueAsArray = value.ToObject<PopulationDetails[]>();
+
+                if (valueAsArray != null)
+                {
+                    populationDetails = valueAsArray.ToList<PopulationDetails>();
+                }
             }
+
             return populationDetails;
         }
     }

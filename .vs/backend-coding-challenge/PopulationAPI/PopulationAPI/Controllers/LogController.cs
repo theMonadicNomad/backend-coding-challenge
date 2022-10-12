@@ -20,7 +20,16 @@ namespace PopulationAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Log>> GetLogDetails() => await _context.Logs.ToListAsync();
+        public async Task<string> GetLogDetails() { 
 
+            var logs = await _context.Logs.ToListAsync();
+            var response = string.Join("\n", logs.Select(s => $"{s.DateTime} - {s.QueryType}"));
+
+            if (string.IsNullOrEmpty(response))
+            {
+                response = "No logs found!";
+            }
+            return response;
+        }
     }
 }
