@@ -1,0 +1,32 @@
+version: '3.4'
+
+networks:
+  populationapiapp:
+services:
+  app-db:
+    container_name: app-db
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - 8002:1433
+    environment:
+      - SA_PASSWORD=Password12345
+      - ACCEPT_EULA=Y
+    networks:
+      - populationapiapp
+
+  populationapi:
+    container_name: population-api-app
+    image: ${DOCKER_REGISTRY-}populationapi
+    build:
+      context: .
+      dockerfile: PopulationAPI/Dockerfile
+    ports:
+      - 8001:80 
+    depends_on:
+      - app-db
+    environment:
+      - ConnectionStrings__SqlServer="Data Source=app-db;Initial Catalog=LoggingDatabase;Integrated Security=True"
+    networks:
+      - populationapiapp
+       
+

@@ -1,0 +1,5 @@
+CREATE TABLE LoggingDatabase.Logs(
+    Id INT PRIMARY KEY IDENTITY (1, 1),
+    QueryType VARCHAR (50) NOT NULL,
+    DateTime DATETIME
+);
